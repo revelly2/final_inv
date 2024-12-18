@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 include 'db.php';
@@ -14,15 +15,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($user) {
         // Set session variables
-        $_SESSION['user_id'] = $user['id']; 
+        $_SESSION['user_id'] = $user['id'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['user_name'] = $user['name']; // Storing user name for further use
 
-        // Redirect based on user role
-        if ($user['role'] === 'admin') {
-            header('Location: admin_dashboard.php'); // Redirect to admin dashboard
-        } elseif ($user['role'] === 'cashier') {
+        // If the user is a cashier, set the cashier-specific session
+        if ($user['role'] === 'cashier') {
+            $_SESSION['cashier_id'] = $user['id']; // Store cashier ID for verification
             header('Location: cashier/cashier_dashboard.php'); // Redirect to cashier dashboard
+        } elseif ($user['role'] === 'admin') {
+            header('Location: admin_dashboard.php'); // Redirect to admin dashboard
         }
         exit;
     } else {
