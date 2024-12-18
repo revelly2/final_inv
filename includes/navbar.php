@@ -11,9 +11,6 @@
           <a class="nav-link" href="/final_inv/admin_dashboard.php">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/final_inv/products/sell.php">Sell Product</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" href="/final_inv/sales/index.php">Sales</a>
         </li>
         <li class="nav-item">
