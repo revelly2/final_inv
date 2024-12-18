@@ -1,21 +1,24 @@
+
 <?php
-
-
 session_start();
 include '../db.php';
 include '../cashier/c_navbar.php';
 
 // Ensure cashier is logged in
 if (!isset($_SESSION['cashier_id'])) {
-    die("Error: Cashier not logged in.");
+    header('Location: ../index.php'); // Redirect to login if cashier is not logged in
+    exit;
 }
 
-$cashier_id = $_SESSION['cashier_id'];
+$cashier_id = $_SESSION['cashier_id']; // Retrieve the logged-in cashier's ID
 
 // Initialize the "cart" session
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
+
+// Rest of your code for adding products to the cart and processing the sale...
+
 $receipt = null; // Holds receipt data to display after completing the sale
 
 // Add product to the cart when a barcode is submitted
@@ -143,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_sale'])) {
         <div class="alert alert-danger"><?php echo $error; ?></div>
     <?php endif; ?>
 
-    <form action="sell.php" method="POST" class="mb-3">
+    <form action="c_sell.php" method="POST" class="mb-3">
         <div class="input-group">
             <input type="text" name="barcode" class="form-control" placeholder="Scan or enter barcode" autofocus required>
             <button type="submit" class="btn btn-primary">Add to Cart</button>
@@ -192,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_sale'])) {
         </table>
     <?php endif; ?>
 
-    <form action="sell.php" method="POST">
+    <form action="c_sell.php" method="POST">
         <button type="submit" name="submit_sale" class="btn btn-success">Complete Sale</button>
     </form>
 
