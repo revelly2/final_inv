@@ -1,6 +1,5 @@
 <?php
-// Start session
-session_start();
+
 include '../db.php'; // Database connection
 
 // Fetch all cashiers (employees) from the `users` table

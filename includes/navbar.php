@@ -14,17 +14,28 @@
           <a class="nav-link" href="/final_inv/sales/index.php">Sales</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/final_inv/products/ins.php">Inventory</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" href="/final_inv/employees/manage_employees.php">Employees</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/final_inv/suppliers/manage_suppliers.php">Suppliers</a>
         </li>
       </ul>
-      
+
       <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/final_inv/products/ins.php">
+            <i class="bi bi-box"></i> Inventory
+            <?php
+            // Start the session and check for low-stock products
+            session_start();
+            if (isset($_SESSION['low_stock_products']) && count($_SESSION['low_stock_products']) > 0):
+            ?>
+              <!-- Display badge with count of low-stock items -->
+              <span class="badge bg-danger"><?php echo count($_SESSION['low_stock_products']); ?></span>
+            <?php endif; ?>
+          </a>
+        </li>
+
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-person-circle"></i> User
@@ -39,6 +50,3 @@
     </div>
   </div>
 </nav>
-
-<!-- Bootstrap Icons (optional, for user icon) -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">

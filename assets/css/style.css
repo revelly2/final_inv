@@ -6,3 +6,6 @@ body {
 .nav-link:hover {
     background-color: #555;
 }
+.table-danger {
+    background-color: #f8d7da !important;
+}

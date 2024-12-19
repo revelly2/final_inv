@@ -1,7 +1,7 @@
 <?php
 include '../db.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/final_inv/includes/navbar.php';
-
+include $_SERVER['DOCUMENT_ROOT'] . '/final_inv/includes/get_low_stock.php';
 
 // Query the latest 25 sales records
 $query_sales = $conn->query("

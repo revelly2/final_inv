@@ -1,8 +1,15 @@
 <?php
 include '../db.php';
+
+// Fetch low-stock products (stock ≤ 10)
+$low_stock_query = $conn->prepare("SELECT product_name, stock FROM products WHERE stock <= 10");
+$low_stock_query->execute();
+$low_stock_products = $low_stock_query->fetchAll(PDO::FETCH_ASSOC);
+
+$_SESSION['low_stock_products'] = $low_stock_products;
+
+// Include the navbar and pass the low-stock products to it
 include $_SERVER['DOCUMENT_ROOT'] . '/final_inv/includes/navbar.php';
-
-
 
 // Handle search query
 $search = isset($_GET['search']) ? $_GET['search'] : '';
@@ -67,25 +74,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['restock_quantity'])) {
                 <th>Actions</th>
             </tr>
         </thead>
+        
         <tbody>
-            <?php foreach ($products as $product): ?>
-                <tr>
-                    <td><?php echo $product['product_id']; ?></td>
-                    <td><?php echo $product['product_name']; ?></td>
-                    <td><?php echo $product['dosage']; ?></td>
-                    <td>₱<?php echo number_format($product['buy_price'], 2); ?></td>
-                    <td>₱<?php echo number_format($product['sell_price'], 2); ?></td>
-                    <td><?php echo $product['stock']; ?></td>
-                    <td>
-                        <!-- Edit Button -->
-                        <a href="edit.php?id=<?php echo $product['product_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                        <!-- Delete Button -->
-                        <a href="delete.php?id=<?php echo $product['product_id']; ?>" class="btn btn-danger btn-sm">Delete</a>
-                        <!-- Restock Button (Triggers Modal) -->
-                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#restockModal" data-product-id="<?php echo $product['product_id']; ?>" data-product-name="<?php echo $product['product_name']; ?>">Restock</button>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
+        <?php foreach ($products as $product): ?>
+            <tr class="<?php echo ($product['stock'] <= 10) ? 'table-danger' : ''; ?>">
+                <td><?php echo $product['product_id']; ?></td>
+                <td><?php echo $product['product_name']; ?></td>
+                <td><?php echo $product['dosage']; ?></td>
+                <td>₱<?php echo number_format($product['buy_price'], 2); ?></td>
+                <td>₱<?php echo number_format($product['sell_price'], 2); ?></td>
+                <td><?php echo $product['stock']; ?></td>
+                <td>
+                    <a href="edit.php?id=<?php echo $product['product_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="delete.php?id=<?php echo $product['product_id']; ?>" class="btn btn-danger btn-sm">Delete</a>
+                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#restockModal" data-product-id="<?php echo $product['product_id']; ?>" data-product-name="<?php echo $product['product_name']; ?>">Restock</button>
+                </td>
+            </tr>
+        <?php endforeach; ?>
         </tbody>
     </table>
 </div>

@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 include '../db.php';
@@ -53,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['barcode'])) {
     }
 }
 
+// Remove a product from the cart
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_product_id'])) {
     $product_id_to_remove = $_POST['remove_product_id'];
     foreach ($_SESSION['cart'] as $key => $item) {
@@ -64,13 +64,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_product_id']))
     $_SESSION['cart'] = array_values($_SESSION['cart']);
 }
 
+// Process the sale
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_sale'])) {
     if (!empty($_SESSION['cart'])) {
         $total_price = 0;
         $total_profit = 0;
         $receipt_items = [];
 
-        $conn->beginTransaction();
+        $conn->beginTransaction(); // Start transaction
 
         try {
             foreach ($_SESSION['cart'] as $item) {
@@ -83,21 +84,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_sale'])) {
                     $total_price += $item['quantity'] * $product['sell_price'];
                     $total_profit += $profit;
 
+                    // Update product stock
                     $update_stock = $conn->prepare("UPDATE products SET stock = stock - :quantity WHERE product_id = :product_id");
                     $update_stock->execute([
                         'quantity' => $item['quantity'],
                         'product_id' => $item['product_id']
                     ]);
 
+                    // Insert sale record with cashier ID
                     $insert_sale = $conn->prepare("
-                        INSERT INTO sales (product_id, quantity, profit, total_price, sale_date) 
-                        VALUES (:product_id, :quantity, :profit, :total_price, NOW())
+                        INSERT INTO sales (product_id, quantity, profit, total_price, sale_date, cashier_id) 
+                        VALUES (:product_id, :quantity, :profit, :total_price, NOW(), :cashier_id)
                     ");
                     $insert_sale->execute([
                         'product_id' => $item['product_id'],
                         'quantity' => $item['quantity'],
                         'profit' => $profit,
-                        'total_price' => $item['quantity'] * $product['sell_price']
+                        'total_price' => $item['quantity'] * $product['sell_price'],
+                        'cashier_id' => $cashier_id // Record which cashier made the sale
                     ]);
 
                     $receipt_items[] = [
@@ -111,9 +115,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_sale'])) {
                 }
             }
 
-            $conn->commit();
+            $conn->commit(); // Commit transaction
 
-            $_SESSION['cart'] = [];
+            $_SESSION['cart'] = []; // Clear the cart after sale completion
 
             $receipt = [
                 'items' => $receipt_items,
@@ -121,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_sale'])) {
                 'date' => date('Y-m-d H:i:s'),
             ];
         } catch (Exception $e) {
-            $conn->rollBack();
+            $conn->rollBack(); // Rollback transaction on error
             $error = $e->getMessage();
         }
     } else {
@@ -178,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_sale'])) {
                     <td><?php echo $item['quantity']; ?></td>
                     <td>₱<?php echo number_format($subtotal, 2); ?></td>
                     <td>
-                        <form action="sell.php" method="POST" style="display:inline;">
+                        <form action="c_sell.php" method="POST" style="display:inline;">
                             <input type="hidden" name="remove_product_id" value="<?php echo $item['product_id']; ?>">
                             <button type="submit" class="btn btn-danger btn-sm">Remove</button>
                         </form>

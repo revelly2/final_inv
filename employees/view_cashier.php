@@ -1,6 +1,4 @@
 <?php
-// Start session
-session_start();
 include '../db.php'; // Database connection
 
 // Get cashier ID from the query string
